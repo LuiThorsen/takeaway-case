@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import Sheet from '@/components/ui/sheet/Sheet.vue';
-import SheetContent from '@/components/ui/sheet/SheetContent.vue';
 import { cn } from '@/lib/utils';
 import type { HTMLAttributes } from 'vue';
-import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './utils';
+import { useSidebar } from './utils';
 
 defineOptions({
     inheritAttrs: false,
@@ -35,21 +33,12 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
         <slot />
     </div>
 
-    <Sheet v-else-if="isMobile" :open="openMobile" v-bind="$attrs" @update:open="setOpenMobile">
-        <SheetContent
-            data-sidebar="sidebar"
-            data-mobile="true"
-            :side="side"
-            class="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-            :style="{
-                '--sidebar-width': SIDEBAR_WIDTH_MOBILE,
-            }"
-        >
-            <div class="flex h-full w-full flex-col">
-                <slot />
-            </div>
-        </SheetContent>
-    </Sheet>
+    <!-- Display as a top bar on mobile -->
+    <div v-else-if="isMobile" class="fixed left-0 top-0 z-50 w-full bg-sidebar p-2 text-sidebar-foreground shadow-md">
+        <div class="flex items-center justify-between">
+            <slot />
+        </div>
+    </div>
 
     <div
         v-else

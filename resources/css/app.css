@@ -99,3 +99,7 @@ html {
         @apply bg-background text-foreground;
     }
 }
+
+.p-datatable .p-datatable-table-container table tbody tr:last-child td {
+    border-bottom: none;
+}

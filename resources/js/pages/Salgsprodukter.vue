@@ -201,7 +201,7 @@ onBeforeUnmount(() => {
     <Head title="Salgsprodukter" />
 
     <AppLayout>
-        <div class="flex h-full max-w-[100vw] flex-1 flex-col gap-4 rounded-xl p-4">
+        <div class="flex h-full max-w-[100vw] flex-1 flex-col gap-4 rounded-xl p-4 pt-32 md:pt-4">
             <h1 class="font-bold text-[#7b7b7b]">Salgsprodukter</h1>
             <Button
                 class="w-fit self-end font-medium"
@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
                 <DataTable
                     :value="products"
                     tableStyle="min-width: 80%"
-                    class="-mb-px bg-white"
+                    class="bg-white"
                     scrollable
                     scrollHeight="calc(100vh - 12.25rem)"
                     :reorderableRows="true"
@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
             modal
             dismissable-mask
             :header="formEditing ? 'Rediger produkt' : 'Opret produkt'"
-            class="w-[400px] max-w-full"
+            class="!sm:max-h-[90%] h-[100vh] !max-h-[100vh] w-full max-w-full sm:h-auto sm:w-[400px]"
             v-on:after-hide="formEditing ? resetProductForm() : null"
         >
             <form @submit.prevent="submitForm" method="post" class="flex flex-col gap-2">
