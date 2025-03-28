@@ -34,7 +34,6 @@ import { Head, Link } from '@inertiajs/vue3';
                                     :href="route('logout')"
                                     as="button"
                                 >
-                                    <LogOut />
                                     Log ud
                                 </Link>
                             </div>

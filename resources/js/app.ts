@@ -4,6 +4,8 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import Lara from '@primeuix/themes/lara';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import PrimeVue from 'primevue/config';
+import ConfirmationService from 'primevue/confirmationservice';
+import KeyFilter from 'primevue/keyfilter';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
@@ -39,6 +41,8 @@ createInertiaApp({
                     },
                 },
             })
+            .use(ConfirmationService)
+            .directive('keyfilter', KeyFilter)
             .mount(el);
     },
     progress: {

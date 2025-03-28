@@ -36,5 +36,5 @@ export function lightenColor(hex: `#${string}`): string {
         .split(', ');
     const hsl = rgbToHsl(+rgb[0], +rgb[1], +rgb[2]);
 
-    return `hsl(${hsl[0]} ${hsl[1]}% ${hsl[2] + 50 > 90 ? hsl[2] + 50 : 90}%)`;
+    return `hsl(${hsl[0]} ${hsl[1]}% ${hsl[2] < 45 ? hsl[2] + 50 : 95}%)`;
 }

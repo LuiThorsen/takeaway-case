@@ -1,149 +1,222 @@
 <script setup lang="ts">
 import { lightenColor } from '@/composables/utils.ts';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { productType } from '@/types/productType';
+import { baseProductType, productType } from '@/types/productType';
 import { Head } from '@inertiajs/vue3';
+import axios from 'axios';
 import Badge from 'primevue/badge';
 import Button from 'primevue/button';
 import ColorPicker from 'primevue/colorpicker';
 import Column from 'primevue/column';
+import ConfirmDialog from 'primevue/confirmdialog';
 import DataTable from 'primevue/datatable';
 import Dialog from 'primevue/dialog';
 import InputNumber from 'primevue/inputnumber';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
+import { useConfirm } from 'primevue/useconfirm';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
+const defaultTagColor = '005c9c';
 const screenWidth = ref(window.innerWidth);
+const productFormOpen = ref(false);
+const formEditing = ref(false);
+const products = ref<productType[]>();
+const changedSomething = ref(false);
+const currentEditID = ref<number | null>(null);
+const newProduct = ref<baseProductType>({
+    name: '',
+    description: '',
+    price: null,
+    tag: '',
+    tag_color: defaultTagColor,
+    vat_percent: 25,
+});
+const confirm = useConfirm();
+const errorFields = ref({
+    name: false,
+    description: false,
+    price: false,
+    vat_percent: false,
+    tag: false,
+    tag_color: false,
+});
+
 const updateScreenWidth = () => {
     screenWidth.value = window.innerWidth;
 };
 
+const getProducts = async () => {
+    try {
+        const response = await axios.get('/api/products');
+        products.value = response.data.sort((a: productType, b: productType) => (a.index > b.index ? 1 : a.index < b.index ? -1 : 0));
+    } catch (error) {
+        console.error('Error fetching products:', error);
+    }
+};
+
+// Function to call the API and create a new product
+const createProduct = async (product: baseProductType) => {
+    try {
+        await axios.post('/api/products', { ...product, index: products.value?.length });
+        await getProducts();
+        productFormOpen.value = false;
+        resetProductForm();
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        if (axios.isAxiosError(error) && error.response?.data?.errors) {
+            (Object.keys(error.response.data.errors) as Array<keyof typeof errorFields.value>).forEach((key) => {
+                errorFields.value[key] = true;
+            });
+        }
+    }
+};
+
+// Function to call the API and create a new product
+const updateProduct = async (id: number, updatedProduct: baseProductType) => {
+    try {
+        await axios.put(`/api/products/${id}`, updatedProduct);
+        await getProducts();
+        productFormOpen.value = false;
+        resetProductForm();
+    } catch (error) {
+        console.error('Error updating product:', error);
+        if (axios.isAxiosError(error) && error.response?.data?.errors) {
+            (Object.keys(error.response.data.errors) as Array<keyof typeof errorFields.value>).forEach((key) => {
+                errorFields.value[key] = true;
+            });
+        }
+    }
+};
+
+// Handler for the form submit event
+const submitForm = () => {
+    resetErrorFields();
+    if (newProduct.value.price !== null) newProduct.value.price *= 100;
+    if (!formEditing.value) {
+        createProduct(newProduct.value);
+    } else {
+        if (currentEditID.value !== null) updateProduct(currentEditID.value, newProduct.value);
+    }
+};
+
+const deleteProduct = async () => {
+    try {
+        const deletedIndex = products.value?.find((el) => el.id === currentEditID.value)?.index;
+        if (!deletedIndex) throw 'Unable to find index for deleted product';
+
+        for (let i = deletedIndex + 1 || Infinity; products.value && i < products.value.length; i++) {
+            products.value[i].index--;
+            updateProduct(products.value[i].id, products.value[i]);
+        }
+
+        await axios.delete(`/api/products/${currentEditID.value}`);
+        await getProducts();
+        productFormOpen.value = false;
+    } catch (error) {
+        console.error('Error deleting product:', error);
+    }
+};
+
+const confirmDelete = () => {
+    confirm.require({
+        message: 'Er du sikker på at du vil slette dette produkt?',
+        header: 'Sletning af produkt',
+        rejectLabel: 'Annuller',
+        rejectProps: {
+            label: 'Annuller',
+            severity: 'secondary',
+            outlined: true,
+        },
+        acceptProps: {
+            label: 'Slet',
+            severity: 'danger',
+        },
+        accept: () => {
+            if (currentEditID.value !== null) deleteProduct();
+            getProducts();
+        },
+        reject: () => {},
+    });
+};
+
+const onRowReorder = ({ dragIndex, dropIndex, value }: { dragIndex: number; dropIndex: number; value: productType[] }) => {
+    value[dropIndex].index = dropIndex;
+    updateProduct(value[dropIndex].id, value[dropIndex]);
+    if (dragIndex > dropIndex) {
+        for (let i = dropIndex + 1; i <= dragIndex; i++) {
+            value[i].index++;
+            updateProduct(value[i].id, value[i]);
+        }
+    } else {
+        for (let i = dragIndex; i < dropIndex; i++) {
+            value[i].index--;
+            updateProduct(value[i].id, value[i]);
+        }
+    }
+    products.value = value;
+};
+
+function selectProductForEdit(data: productType) {
+    resetErrorFields();
+    changedSomething.value = false;
+    formEditing.value = true;
+    productFormOpen.value = true;
+    currentEditID.value = data.id;
+
+    newProduct.value.name = data.name;
+    newProduct.value.description = data.description;
+    newProduct.value.price = data.price !== null ? data.price / 100 : null;
+    newProduct.value.vat_percent = data.vat_percent;
+    newProduct.value.tag = data.tag;
+    newProduct.value.tag_color = data.tag_color;
+}
+
+function resetProductForm() {
+    newProduct.value.name = '';
+    newProduct.value.description = '';
+    newProduct.value.price = null;
+    newProduct.value.tag = '';
+    newProduct.value.tag_color = defaultTagColor;
+    newProduct.value.vat_percent = 25;
+}
+
+function resetErrorFields() {
+    (Object.keys(errorFields.value) as Array<keyof typeof errorFields.value>).forEach((key) => {
+        errorFields.value[key] = false;
+    });
+}
+
 onMounted(() => {
+    getProducts();
     window.addEventListener('resize', updateScreenWidth);
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('resize', updateScreenWidth);
 });
-
-const defaultTagColor = '005c9c';
-
-const products = ref();
-products.value = [
-    {
-        id: 236547,
-        index: 0,
-        name: 'Turborg Classic 0,5 l',
-        description: '',
-        price: 6500,
-        vatPercent: 25,
-        tag: 'Populær',
-        tagColor: '005c9c',
-    },
-    { id: 57896, index: 1, name: 'Coca Cola 0,5 l', description: '', price: 4600, vatPercent: 25, tag: 'Tilbud', tagColor: 'c94f04' },
-    {
-        id: 45632,
-        index: 2,
-        name: 'Pizza parma',
-        description: 'Ost, tomatsauce, parmaskinke, ruccula, grøn pesto',
-        price: 12500,
-        vatPercent: 25,
-        tag: 'Populær',
-        tagColor: '005c9c',
-    },
-    {
-        id: 5,
-        index: 3,
-        name: 'Turborg Classic 0,5 l',
-        description: '',
-        price: 6500,
-        vatPercent: 25,
-        tag: 'Populær',
-        tagColor: '005c9c',
-    },
-    { id: 6, index: 4, name: 'Coca Cola 0,5 l', description: '', price: 4600, vatPercent: 25, tag: '' },
-    {
-        id: 7,
-        index: 5,
-        name: 'Pizza parma',
-        description: 'Ost, tomatsauce, parmaskinke, ruccula, grøn pesto',
-        price: 12500,
-        vatPercent: 25,
-        tag: 'Populær, Tilbud',
-        tagColor: 'c94f04',
-    },
-];
-
-const onRowReorder = ({ dragIndex, dropIndex, value }: { dragIndex: number; dropIndex: number; value: productType[] }) => {
-    console.log('dragIndex:', dragIndex, '\ndropIndex:', dropIndex, '\nvalue:', value);
-    value[dropIndex].index = dropIndex;
-    if (dragIndex > dropIndex) {
-        for (let i = dropIndex + 1; i <= dragIndex; i++) {
-            value[i].index++;
-        }
-    } else {
-        for (let i = dragIndex; i < dropIndex; i++) {
-            value[i].index--;
-        }
-    }
-    products.value = value;
-};
-
-const createFormOpen = ref(false);
-const createFormState = ref({
-    name: '',
-    description: '',
-    price: null,
-    tag: '',
-    tagColor: defaultTagColor,
-    vatPercent: 25,
-});
-
-function resetCreateForm() {
-    createFormState.value.name = '';
-    createFormState.value.description = '';
-    createFormState.value.price = null;
-    createFormState.value.tag = '';
-    createFormState.value.tagColor = defaultTagColor;
-    createFormState.value.vatPercent = 25;
-}
-
-function createProduct() {
-    const output = {
-        name: createFormState.value.name,
-        description: createFormState.value.description,
-        price: createFormState.value.price ? createFormState.value.price * 100 : null,
-        tag: createFormState.value.tag,
-        tagColor: createFormState.value.tagColor,
-        vatPercent: +createFormState.value.vatPercent,
-        index: products.value.length,
-    };
-    products.value.push(output);
-    resetCreateForm();
-}
-
-const editFormOpen = ref(false);
-
-function selectProductForEdit(data: productType) {
-    console.log(data);
-    editFormOpen.value = true;
-}
 </script>
 
 <template>
     <Head title="Salgsprodukter" />
 
     <AppLayout>
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+        <div class="flex h-full max-w-[100vw] flex-1 flex-col gap-4 rounded-xl p-4">
             <h1 class="font-bold text-[#7b7b7b]">Salgsprodukter</h1>
-            <Button class="w-fit self-end font-medium" @click="createFormOpen = true">
+            <Button
+                class="w-fit self-end font-medium"
+                @click="
+                    productFormOpen = true;
+                    formEditing = false;
+                    resetErrorFields();
+                "
+            >
                 <span class="-mb-1 -mt-[0.1rem] text-3xl font-thin leading-none">+</span> Opret produkt
             </Button>
             <div
                 class="border-color-[var(--p-datatable-body-cell-border-color)] rounded-md border-[1px] bg-white px-4 dark:bg-[var(--p-datatable-row-background)]"
             >
-                <h2 class="my-4 font-bold">Alle produkter ({{ products.length }})</h2>
+                <h2 class="my-4 font-bold">Alle produkter ({{ products?.length }})</h2>
                 <DataTable
                     :value="products"
                     tableStyle="min-width: 80%"
@@ -166,8 +239,8 @@ function selectProductForEdit(data: productType) {
                             {{ slotProps.data.price.toString().slice(0, -2) }},{{ slotProps.data.price.toString().slice(-2) }}
                         </template>
                     </Column>
-                    <Column field="vatPercent" header="Momssats" v-if="screenWidth > 920">
-                        <template #body="slotProps"> {{ slotProps.data.vatPercent }} % </template>
+                    <Column field="vat_percent" header="Momssats" v-if="screenWidth > 920">
+                        <template #body="slotProps"> {{ slotProps.data.vat_percent }} % </template>
                     </Column>
                     <Column field="tag" header="Tag" v-if="screenWidth > 560">
                         <template #body="slotProps">
@@ -175,8 +248,8 @@ function selectProductForEdit(data: productType) {
                                 <Badge
                                     :value="slotProps.data.tag"
                                     :style="{
-                                        backgroundColor: lightenColor(slotProps.data.tagColor),
-                                        color: '#' + slotProps.data.tagColor,
+                                        backgroundColor: lightenColor(slotProps.data.tag_color),
+                                        color: '#' + slotProps.data.tag_color,
                                     }"
                                 />
                             </span>
@@ -204,44 +277,114 @@ function selectProductForEdit(data: productType) {
             </div>
         </div>
 
-        <Dialog v-model:visible="createFormOpen" modal dismissable-mask header="Opret produkt" class="w-[400px] max-w-full">
-            <form @submit.prevent="createProduct" method="post" class="flex flex-col gap-2">
+        <Dialog
+            v-model:visible="productFormOpen"
+            modal
+            dismissable-mask
+            :header="formEditing ? 'Rediger produkt' : 'Opret produkt'"
+            class="w-[400px] max-w-full"
+            v-on:after-hide="formEditing ? resetProductForm() : null"
+        >
+            <form @submit.prevent="submitForm" method="post" class="flex flex-col gap-2">
                 <label class="font-medium" for="name">Navn&VeryThinSpace;<span class="text-red-500">*</span></label>
-                <InputText id="name" name="name" v-model="createFormState.name" required />
+                <InputText
+                    :invalid="errorFields.name"
+                    id="name"
+                    name="name"
+                    v-model="newProduct.name"
+                    required
+                    :autofocus="formEditing ? false : true"
+                    @value-change="changedSomething = true"
+                />
 
                 <label class="mt-2 font-medium" for="description">Beskrivelse</label>
-                <Textarea id="description" name="description" v-model="createFormState.description" rows="4" style="resize: none" />
+                <Textarea
+                    :invalid="errorFields.description"
+                    id="description"
+                    name="description"
+                    v-model="newProduct.description"
+                    rows="4"
+                    style="resize: none"
+                    @value-change="changedSomething = true"
+                />
 
                 <label class="mt-2 font-medium" for="price">Pris&VeryThinSpace;<span class="text-red-500">*</span></label>
-                <InputNumber id="price" name="price" v-model="createFormState.price" required mode="currency" currency="dkk" locale="de-DE" />
+                <InputNumber
+                    :invalid="errorFields.price"
+                    id="price"
+                    name="price"
+                    v-model="newProduct.price"
+                    required
+                    mode="currency"
+                    currency="dkk"
+                    locale="de-DE"
+                    @value-change="changedSomething = true"
+                />
 
-                <label class="mt-2 font-medium" for="vatPercent">Momssats %<span class="text-red-500">*</span></label>
-                <InputNumber id="vatPercent" name="vatPercent" v-model="createFormState.vatPercent" :min="0" :max="100" />
+                <label class="mt-2 font-medium" for="vat_percent">Momssats %&VeryThinSpace;<span class="text-red-500">*</span></label>
+                <InputNumber
+                    :invalid="errorFields.vat_percent"
+                    id="vat_percent"
+                    name="vat_percent"
+                    v-model="newProduct.vat_percent"
+                    :min="0"
+                    :max="100"
+                    @value-change="changedSomething = true"
+                />
 
                 <label class="mt-2 font-medium" for="tag">Tagnavn</label>
-                <InputText id="tag" name="tag" v-model="createFormState.tag" />
+                <InputText :invalid="errorFields.tag" id="tag" name="tag" v-model="newProduct.tag" @value-change="changedSomething = true" />
 
-                <label class="mt-2 font-medium" for="tagColor">Tagfarve</label>
+                <label class="mt-2 font-medium" for="tag_color">Tagfarve</label>
                 <div class="flex gap-2">
-                    <ColorPicker id="tagColorPicker" name="tagColorPicker" v-model="createFormState.tagColor" format="hex" />
-                    <InputText id="tagColor" name="tagColor" class="w-full" v-model="createFormState.tagColor" />
+                    <ColorPicker
+                        id="tagColorPicker"
+                        name="tagColorPicker"
+                        v-model="newProduct.tag_color"
+                        format="hex"
+                        @value-change="changedSomething = true"
+                    />
+                    <InputText
+                        :invalid="errorFields.tag_color"
+                        v-keyfilter.hex
+                        id="tag_color"
+                        name="tag_color"
+                        class="w-full"
+                        v-model="newProduct.tag_color"
+                        @value-change="changedSomething = true"
+                    />
                 </div>
 
+                <ConfirmDialog></ConfirmDialog>
+
                 <div class="mt-4 flex justify-end gap-2">
+                    <Button
+                        v-if="formEditing"
+                        type="button"
+                        label="Slet"
+                        severity="danger"
+                        :style="{
+                            marginRight: 'auto',
+                        }"
+                        @click="confirmDelete"
+                    ></Button>
                     <Button
                         type="reset"
                         label="Annuller"
                         severity="secondary"
                         @click="
-                            createFormOpen = false;
-                            resetCreateForm();
+                            productFormOpen = false;
+                            resetProductForm();
                         "
                     ></Button>
                     <Button
                         type="submit"
-                        label="Opret"
-                        @click="createFormOpen = false"
-                        :disabled="!createFormState.name || !createFormState.price || !createFormState.vatPercent"
+                        :label="formEditing ? 'Gem' : 'Opret'"
+                        :disabled="
+                            formEditing
+                                ? !changedSomething || !newProduct.name || !newProduct.price || !newProduct.vat_percent
+                                : !newProduct.name || !newProduct.price || !newProduct.vat_percent
+                        "
                     ></Button>
                 </div>
             </form>
