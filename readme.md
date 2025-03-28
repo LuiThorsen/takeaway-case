@@ -1,3 +1,7 @@
+# Test case take away menu admin
+
+View, create, edit and delete products in a back-office view.
+
 ### SQLite migrated tables (for user login) created using:
 
 ```
