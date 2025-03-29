@@ -92,11 +92,12 @@ const updateProduct = async (id: number, updatedProduct: baseProductType) => {
 // Handler for the form submit event
 const submitForm = () => {
     resetErrorFields();
-    if (newProduct.value.price !== null) newProduct.value.price *= 100;
+    const productCopy = { ...newProduct.value };
+    if (productCopy.price !== null) productCopy.price *= 100;
     if (!formEditing.value) {
-        createProduct(newProduct.value);
+        createProduct(productCopy);
     } else {
-        if (currentEditID.value !== null) updateProduct(currentEditID.value, newProduct.value);
+        if (currentEditID.value !== null) updateProduct(currentEditID.value, productCopy);
     }
 };
 
