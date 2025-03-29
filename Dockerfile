@@ -27,8 +27,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
 # Set working directory
 WORKDIR /var/www
 
-# Copy key files needed for composer install (including artisan)
-COPY composer.json composer.lock artisan ./
+# Copy composer files, artisan, and bootstrap folder (so that artisan can load the app)
+COPY composer.json composer.lock artisan bootstrap ./
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
