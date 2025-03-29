@@ -109,7 +109,7 @@ const submitForm = () => {
 const deleteProduct = async () => {
     try {
         const deletedIndex = products.value?.find((el) => el.id === currentEditID.value)?.index;
-        if (!deletedIndex) throw 'Unable to find index for deleted product';
+        if (deletedIndex === undefined) throw 'Unable to find index for deleted product';
 
         for (let i = deletedIndex + 1 || Infinity; products.value && i < products.value.length; i++) {
             products.value[i].index--;
