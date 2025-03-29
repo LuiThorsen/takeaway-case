@@ -34,7 +34,7 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
     </div>
 
     <!-- Display as a top bar on mobile -->
-    <div v-else-if="isMobile" class="fixed left-0 top-0 z-50 w-full bg-sidebar p-2 text-sidebar-foreground shadow-md">
+    <div v-else-if="isMobile" class="absolute left-0 top-0 z-50 w-full bg-sidebar p-2 text-sidebar-foreground shadow-md">
         <div class="flex items-center justify-between">
             <slot />
         </div>

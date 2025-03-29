@@ -201,7 +201,7 @@ onBeforeUnmount(() => {
     <Head title="Salgsprodukter" />
 
     <AppLayout>
-        <div class="flex h-full max-w-[100vw] flex-1 flex-col gap-4 rounded-xl p-4 pt-32 md:pt-4">
+        <div class="flex h-full max-w-[100vw] flex-1 flex-col gap-4 rounded-xl p-4 pt-32 md:max-w-[calc(100vw-var(--sidebar-width))] md:pt-4">
             <h1 class="font-bold text-[#7b7b7b]">Salgsprodukter</h1>
             <Button
                 class="w-fit self-end font-medium"
@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
                     resetErrorFields();
                 "
             >
-                <span class="-mb-1 -mt-[0.1rem] text-3xl font-thin leading-none">+</span> Opret produkt
+                <span class="-mb-1 -ml-2 -mr-1 -mt-[0.1rem] text-2xl font-normal leading-none">＋</span> Opret produkt
             </Button>
             <div
                 class="border-color-[var(--p-datatable-body-cell-border-color)] rounded-md border-[1px] bg-white px-4 dark:bg-[var(--p-datatable-row-background)]"
@@ -222,7 +222,7 @@ onBeforeUnmount(() => {
                     tableStyle="min-width: 80%"
                     class="bg-white"
                     scrollable
-                    scrollHeight="calc(100vh - 12.25rem)"
+                    scrollHeight="calc(100vh - 12.67rem)"
                     :reorderableRows="true"
                     @rowReorder="onRowReorder"
                 >

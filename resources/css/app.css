@@ -52,6 +52,11 @@ html {
         --p-colorpicker-preview-height: 2.5rem !important;
         --p-badge-height: auto !important;
         --p-badge-padding: 0.2rem 0.5rem !important;
+        --p-button-padding-y: 0.45rem !important;
+
+        @media screen and (max-width: 639px) {
+            --p-dialog-border-radius: 0 !important;
+        }
     }
 
     .dark {
