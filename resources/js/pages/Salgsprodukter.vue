@@ -21,6 +21,7 @@ const defaultTagColor = '005c9c';
 const screenWidth = ref(window.innerWidth);
 const productFormOpen = ref(false);
 const formEditing = ref(false);
+const formSubmitting = ref(false);
 const products = ref<productType[]>();
 const changedSomething = ref(false);
 const currentEditID = ref<number | null>(null);
@@ -61,6 +62,7 @@ const createProduct = async (product: baseProductType) => {
         await axios.post('/api/products', { ...product, index: products.value?.length });
         await getProducts();
         productFormOpen.value = false;
+        formSubmitting.value = false;
         resetProductForm();
     } catch (error) {
         console.error('Error fetching products:', error);
@@ -78,6 +80,7 @@ const updateProduct = async (id: number, updatedProduct: baseProductType) => {
         await axios.put(`/api/products/${id}`, updatedProduct);
         await getProducts();
         productFormOpen.value = false;
+        formSubmitting.value = false;
         resetProductForm();
     } catch (error) {
         console.error('Error updating product:', error);
@@ -91,12 +94,14 @@ const updateProduct = async (id: number, updatedProduct: baseProductType) => {
 
 // Handler for the form submit event
 const submitForm = () => {
+    formSubmitting.value = true;
     resetErrorFields();
     const productCopy = { ...newProduct.value };
     if (productCopy.price !== null) productCopy.price *= 100;
     if (!formEditing.value) {
         createProduct(productCopy);
     } else {
+        formSubmitting.value = false;
         if (currentEditID.value !== null) updateProduct(currentEditID.value, productCopy);
     }
 };
@@ -383,8 +388,8 @@ onBeforeUnmount(() => {
                         :label="formEditing ? 'Gem' : 'Opret'"
                         :disabled="
                             formEditing
-                                ? !changedSomething || !newProduct.name || !newProduct.price || !newProduct.vat_percent
-                                : !newProduct.name || !newProduct.price || !newProduct.vat_percent
+                                ? formSubmitting || !changedSomething || !newProduct.name || !newProduct.price || !newProduct.vat_percent
+                                : formSubmitting || !newProduct.name || !newProduct.price || !newProduct.vat_percent
                         "
                     ></Button>
                 </div>
