@@ -2,7 +2,7 @@
 
 Se, opret, rediger og slet produkter i en back-office visning.
 
-Se live på <http://167.99.216.216/>
+Se live på: <http://167.99.216.216/>
 
 ## Installationsvejledning
 
