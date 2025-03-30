@@ -8,7 +8,7 @@ Se, opret, rediger og slet produkter i en back-office visning.
 
 2. Installer og konfigurer en MySQL-server. Du kan fx bruge denne: https://dev.mysql.com/downloads/installer/ eller XAMPP
 
-3. Opsæt .env med databaseforbindelsen. Start med .env.example, som allerede har det meste klar
+3. Opsæt .env med databaseforbindelsen mm. Start med .env.example, som allerede har det meste klar
 
 4. Installer PHP, hvis du ikke allerede har det. Installer derefter Composer: https://getcomposer.org/download/
 
@@ -16,10 +16,22 @@ Se, opret, rediger og slet produkter i en back-office visning.
 
 6. Kør `composer install` og `composer update`, hvis det er nødvendigt.
 
-7. Kør `npm install` og `npm run build`
+7. Installer npm, og kør `npm install` og `npm run build`
 
 8. Kør `php artisan migrate` for at oprette databasen.
 
-9. Kør `composer run dev` for at starte appen.
+9. Kør `composer run dev` for at starte appen i udvikler tilstand.
 
-10. Åbn http://localhost:8000/ og opret en konto, så kan du begynde at oprette produkter.
+10. Åbn http://localhost:8000/ og opret en konto.
+
+## Overvejelser der er værd at nævne
+
+Jeg kom nok lidt over de 20 timer, men der var også relativt mange ting, jeg skulle sætte mig ind i.
+
+Hvis jeg havde haft mere tid, ville jeg overveje følgende:
+
+- Gøre med ud af formular valideringen, så den videregiver sigende fejl-beskeder til brugeren.
+
+- Lave et custom PrimeVue tema, i stedet for at bruge !important til de få rettelser, hvor jeg blev nødt til at overskrive temaets (Lara) styling.
+
+- Gøre mere for brugervenligheden på små skærme. Forsøge at undgå horisontal scrolling ved alle scenarier. Også sikre mig at browserens UI ikke blokerer for nogle elementer, som knapperne nederst i produkt formular popup. Mulighed for træk-og-slip for at ændre rækkefølge, også på touch-skærme.
