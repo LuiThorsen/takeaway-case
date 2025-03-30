@@ -38,7 +38,7 @@ Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 
 - Skifte til navngivet domæne med SSL/TLS certifikat.
 
-- Splitte salgsprodukter siden op i adskilte moduler.
+- Splitte salgsprodukter siden op i adskilte moduler. Forbedre skalerbarhed og genbrugelighed af funktioner.
 
 - Gøre mere for brugervenligheden på små skærme.
     - Forsøge at undgå horisontal scrolling ved alle scenarier.
