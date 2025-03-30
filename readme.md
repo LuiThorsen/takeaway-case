@@ -2,6 +2,8 @@
 
 Se, opret, rediger og slet produkter i en back-office visning.
 
+Se live på <http://167.99.216.216/>
+
 ## Installationsvejledning
 
 1. Klon eller download og udpak repoen
@@ -33,6 +35,8 @@ Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 - Gøre med ud af formular valideringen, så den videregiver sigende fejl-beskeder til brugeren.
 
 - Lave et custom PrimeVue tema, i stedet for at bruge !important til de få rettelser, hvor jeg blev nødt til at overskrive temaets (Lara) styling.
+
+- Skifte til navngivet domæne med SSL/TLS certifikat.
 
 - Gøre mere for brugervenligheden på små skærme.
     - Forsøge at undgå horisontal scrolling ved alle scenarier.
