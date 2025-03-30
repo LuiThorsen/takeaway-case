@@ -24,7 +24,7 @@ Se, opret, rediger og slet produkter i en back-office visning.
 
 10. Åbn http://localhost:8000/ og opret en konto.
 
-## Overvejelser der er værd at nævne
+## Overvejelser, der er værd at nævne
 
 Jeg kom nok lidt over de 20 timer, men der var også relativt mange ting, jeg skulle sætte mig ind i.
 
@@ -34,4 +34,7 @@ Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 
 - Lave et custom PrimeVue tema, i stedet for at bruge !important til de få rettelser, hvor jeg blev nødt til at overskrive temaets (Lara) styling.
 
-- Gøre mere for brugervenligheden på små skærme. Forsøge at undgå horisontal scrolling ved alle scenarier. Også sikre mig at browserens UI ikke blokerer for nogle elementer, som knapperne nederst i produkt formular popup. Mulighed for træk-og-slip for at ændre rækkefølge, også på touch-skærme.
+- Gøre mere for brugervenligheden på små skærme.
+    - Forsøge at undgå horisontal scrolling ved alle scenarier.
+    - Sikre mig at browserens UI ikke blokerer for nogle elementer, som knapperne nederst i produkt formular popup.
+    - Mulighed for træk-og-slip for at ændre rækkefølge, også på touch-skærme.
