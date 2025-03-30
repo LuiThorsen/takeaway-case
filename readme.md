@@ -30,6 +30,8 @@ Se live på: <http://167.99.216.216/>
 
 Jeg kom nok lidt over de 20 timer, men der var også relativt mange ting, jeg skulle sætte mig ind i.
 
+Læg mærke til understøttelse af både light og dark mode. Som udgangspunkt baseret på system preference, men kan ændres i bruger-indstillinger efter login.
+
 Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 
 - Gøre med ud af formular valideringen, så den videregiver sigende fejl-beskeder til brugeren.
@@ -37,6 +39,8 @@ Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 - Lave et custom PrimeVue tema, i stedet for at bruge !important til de få rettelser, hvor jeg blev nødt til at overskrive temaets (Lara) styling.
 
 - Skifte til navngivet domæne med SSL/TLS certifikat.
+
+- Oprette brugerroller, som begrænser hvad man har adgang til at se/rette. Begrænse adgang til oprettelse af nye brugere.
 
 - Splitte salgsprodukter siden op i adskilte moduler. Forbedre skalerbarhed og genbrugelighed af funktioner.
 
