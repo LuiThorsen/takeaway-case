@@ -44,6 +44,8 @@ Hvis jeg havde haft mere tid, ville jeg overveje følgende:
 
 - Splitte salgsprodukter siden op i adskilte moduler. Forbedre skalerbarhed og genbrugelighed af funktioner.
 
+- Samle update kald til API'et, når der rettes i flere produkters index. Fx når der slettes et produkt, eller trækkes rundt på rækkefølgen.
+
 - Gøre mere for brugervenligheden på små skærme.
     - Forsøge at undgå horisontal scrolling ved alle scenarier.
     - Sikre mig at browserens UI ikke blokerer for nogle elementer, som knapperne nederst i produkt formular popup.
